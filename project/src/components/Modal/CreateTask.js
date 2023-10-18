@@ -1,11 +1,11 @@
 import api from './../../shared/service/axios/axiosClient';
 
 export const CreateTask = ({ description, title, results }) => {
-  return api.post(
+  api.post(
     '/tasks',
     {
-      description: description,
-      title: title,
+      description,
+      title,
       results,
     },
     {
