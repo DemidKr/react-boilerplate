@@ -47,7 +47,6 @@ const AuthPage = () => {
                     window.location.reload()
                 })
             }).catch(function (error) {
-                console.log(error)
                 if (error.response) {
                     setErrorMessage(error.response.data?.message)
                 } else {
