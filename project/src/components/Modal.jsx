@@ -20,10 +20,46 @@ const style = {
   p: 4,
 };
 
+function Form() {
+  const [taskCase, setTaskCase] = useState([{args: '', result: ''}]);
+
+  const handleAddCase = () => {
+    setTaskCase(prev => ([...prev, {args: '', result: ''}]))
+  }
+
+  const handleChangeTaskCaseArgs = (key, args) => {
+    const copiedCases = [...taskCase];
+    copiedCases[key].args = args;
+
+    setTaskCase(copiedCases);
+  }
+
+  const handleChangeTaskCaseValue = (key, value) => {
+    const copiedCases = [...taskCase];
+    copiedCases[key].result = value;
+
+    setTaskCase(copiedCases);
+  }
+
+  // console.log(taskCase);
+
+  return <>
+  {taskCase.map((taskCase, index) => (
+    <>
+      <input key={index} value={taskCase.args} onChange={handleChangeTaskCaseArgs(index, taskCase.args)} />
+      <input key={index} value={taskCase.result} onChange={handleChangeTaskCaseValue(index, taskCase.result)} />
+    </>
+  ))}
+  <button onClick={handleAddCase}>Add</button>
+  </>
+}
+
 export default function ModalCustom({open, close}) {
 const [title, setTitle] = useState("");
 const [description, setDescription] = useState("");
-const [value, setValue] = useState("");
+const [value, setValue] = useState({});
+
+const [count, setCount] = useState(1)
 
   const handleClose = () => close(false);
  
@@ -53,14 +89,21 @@ const [value, setValue] = useState("");
       >
         <Fade in={open}>
           <Box sx={style}>
-            <form onSubmit={handleSubmit}>
+            <form style={{overflowY: 'auto', maxHeight: '500px'}} onSubmit={handleSubmit}>
             <Typography id="transition-modal-title" variant="h6" component="h2">
               Создайте тест
             </Typography>
             <InputCustom value={title} onChange={setTitle}/>
             <InputCustom value={description} onChange={setDescription}/>
-            <InputCustom value={title} onChange={setValue}/>
-            <Button type='submit' variant="contained">Создать</Button>
+            {/* {Array.from(Array(count).keys()).map(el => (
+<div style={{display: 'flex', marginBottom: 32}}>
+              <InputCustom value={value.input} onChange={}/>
+              <InputCustom value={value} onChange={setValue}/>
+</div>
+            ))} */}
+<Form />
+            <button type='button' onClick={() => setCount(prev => prev + 1)}>+</button>
+            <Button  type='submit' variant="contained">Создать тест</Button>
             </form>
           </Box>
         </Fade>
@@ -68,3 +111,4 @@ const [value, setValue] = useState("");
     </div>
   );
 }
+

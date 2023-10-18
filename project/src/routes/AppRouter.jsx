@@ -6,7 +6,7 @@ const AppRouter = () => {
     // Здесь мы должы стучаться к бэку
     const [isAuth, setIsAuth] = useState(false)
     const getRouts = () => {
-        if (!isAuth) {
+        if (isAuth) {
             return publicRoutes
         } else {
             return userRoutes
