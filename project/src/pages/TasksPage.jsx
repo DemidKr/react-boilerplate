@@ -1,16 +1,15 @@
-import {useState} from 'react';
-import ModalCustom from '../components/Modal';
+import { useState } from 'react';
+import ModalCustom from '../components/Modal/Modal';
 import Button from '@mui/material/Button';
 import TaskCard from '../components/TaskCard';
 import LogoutButton from "../components/LogoutButton";
 
-
 const TasksPage = () => {
   const [open, setOpen] = useState(false);
 
-    const handleOpen = () => setOpen(true);
-
-    const DataCard = [
+  const handleOpen = () => setOpen(true);
+  
+  const DataCard = [
       {title: "test1", description: "info1"},
       {title: "test2", description: "info2"},
       {title: "test3", description: "info3"},
