@@ -1,29 +1,60 @@
 import React, {useState} from "react";
-import {CssBaseline, Grid} from "@mui/material";
+import {Alert, CssBaseline, Grid} from "@mui/material";
 import * as PropTypes from "prop-types";
 import {AuthBox, AuthButton, AuthHint, AuthHintButton, AuthInput, AuthTitle} from "../components/Auth/Auth.styled";
+import api from "../shared/service/axios/axiosClient";
 
 const AuthPage = () => {
     const [auth, setAuth] = useState('login')
     const [password, setPassword] = useState('')
     const [username, setUsername] = useState('')
     const [imageUrl, setImageUrl] = useState('')
-
+    const [errorMessage, setErrorMessage] = useState('')
 
     const handleAuth = async () => {
-        if (!username || !password) {
-            return;
-        }
-
-        if (password.length < 8) {
-            //Пароль должен содержать не менее 8 символов
+        if (!username || !password || (auth === 'registration' && !imageUrl)) {
+            setErrorMessage('Поля не должны быть пустыми')
             return;
         }
 
         if (auth === 'login') {
-           // стучимся в логин
+            api.post('/auth', {
+                hash: password,
+                username
+            }).then(res => {
+                localStorage.setItem('access_token', res.data?.access_token)
+                setErrorMessage('')
+                window.location.reload()
+            }).catch(function (error) {
+                if (error.response) {
+                    setErrorMessage(error.response.data?.message)
+                } else {
+                    setErrorMessage('Произошла ошибка: ' + error.message)
+                }
+            })
         } else {
-            // стучимся в регистрацию
+            api.post('/user', {
+                avatar: imageUrl,
+                hash: password,
+                username
+            }).then(res => {
+                api.post('/auth', {
+                    hash: password,
+                    username
+                }).then(res => {
+                    localStorage.setItem('access_token', res.data?.access_token)
+                    setErrorMessage('')
+                    window.location.reload()
+                })
+            }).catch(function (error) {
+                console.log(error)
+                if (error.response) {
+                    setErrorMessage(error.response.data?.message)
+                } else {
+                    setErrorMessage('Произошла ошибка: ' + error.message)
+
+                }
+            })
         }
 
     }
@@ -67,14 +98,15 @@ const AuthPage = () => {
                                 setPassword(event.target.value)
                             }
                         />
-                        <AuthInput
+                        {auth === 'registration' && <AuthInput
                             label="Url картинки"
                             inputProps={{autoComplete: 'off',}}
                             value={imageUrl}
                             onChange={(event) =>
                                 setImageUrl(event.target.value)
                             }
-                        />
+                        />}
+
                         <AuthButton
                             onClick={handleAuth}
                             variant="contained"
@@ -89,6 +121,17 @@ const AuthPage = () => {
                                 {auth === 'login' ? 'Зарегистирироваться' : 'Войти'}
                             </AuthHintButton>
                         </AuthHint>
+                        {errorMessage.length > 0 && <Alert
+                            severity="error"
+                            sx={{
+                                fontFamily: 'Montserrat',
+                                fontStyle: 'normal',
+                                fontWeight: '500',
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            {errorMessage}
+                        </Alert>}
                     </AuthBox>
                 </Grid>
             </Grid>
