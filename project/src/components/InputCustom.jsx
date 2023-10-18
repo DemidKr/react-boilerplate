@@ -7,6 +7,7 @@ export default function InputCustom({
   label = 'Текст',
   isCase,
   name,
+  required,
 }) {
   const handleChange = (e) => {
     onChange(e.target.value);
@@ -27,6 +28,7 @@ export default function InputCustom({
         label={label}
         variant='outlined'
         name={name}
+        required={required}
       />
     </Box>
   );

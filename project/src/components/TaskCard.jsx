@@ -5,15 +5,21 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-export default function TaskCard({ title = 'Test', description = 'Test' }) {
+export default function TaskCard({
+  title = 'Test',
+  description = 'Test',
+  onClick,
+}) {
   return (
-    <Card sx={{ width: 250 }}>
+    <Card onClick={onClick} sx={{ width: 250 }}>
       <CardContent>
-        <Typography variant="h5" component="div">{title}</Typography>
-        <Typography variant="body2">{description}</Typography>
+        <Typography variant='h5' component='div'>
+          {title}
+        </Typography>
+        <Typography variant='body2'>{description}</Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Learn More</Button>
+        <Button size='small'>Learn More</Button>
       </CardActions>
     </Card>
   );

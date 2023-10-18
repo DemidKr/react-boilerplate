@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import InputCustom from '../InputCustom';
 import AnswerForm from '../AnswerForm';
 import { CreateTask } from './CreateTask';
+import api from './../../shared/service/axios/axiosClient';
 
 const style = {
   position: 'absolute',
@@ -21,21 +22,43 @@ const style = {
   p: 4,
 };
 
-export default function ModalCustom({ open, close }) {
+export default function ModalCustom({ open, close, taskFoo }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [taskCase, setTaskCase] = useState([{ args: '', result: '' }]);
 
-  const handleClose = () => close(false);
+  const handleClose = () => {
+    close(false);
+    setTitle('');
+    setDescription('');
+    setTaskCase([{ args: '', result: '' }]);
+  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const results = taskCase.map((el) => {
       return Object.values(el);
     });
-    try {
-      await CreateTask(description, title, results);
-    } catch (error) {}
+    // CreateTask(description, title, results);
+    api
+      .post(
+        '/tasks',
+        {
+          description,
+          title,
+          results,
+        },
+        {
+          headers: {
+            Authorization:
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZTIyZjU1ZS0zZjFiLTQ0YzctODdkNi1hYjE0OGQ5ODM0MmYiLCJ1c2VybmFtZSI6InRlYW0wIiwiaWF0IjoxNjk3NjIxNTg3LCJleHAiOjE2OTc3MDc5ODd9.fofkVpMGEm0awjsOLTam7gDOx0BJS1nfi4iBvkD-3sg',
+          },
+        },
+      )
+      .then(() => {
+        handleClose();
+        taskFoo();
+      });
   };
 
   return (
@@ -66,8 +89,14 @@ export default function ModalCustom({ open, close }) {
               >
                 Создайте тест
               </Typography>
-              <InputCustom label='Название' value={title} onChange={setTitle} />
               <InputCustom
+                required
+                label='Название'
+                value={title}
+                onChange={setTitle}
+              />
+              <InputCustom
+                required
                 label='Описание'
                 value={description}
                 onChange={setDescription}
