@@ -1,5 +1,5 @@
 import AuthPage from '../pages/AuthPage';
-import TasksPage from '../pages/TasksPage';
+import TasksPage from '../pages/TasksPage/TasksPage';
 import { Navigate } from 'react-router-dom';
 
 export const publicRoutes = [
