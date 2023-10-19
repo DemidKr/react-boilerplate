@@ -29,7 +29,7 @@ const TimerCustom = ({ millySec, setTime }) => {
           (seconds > 9 ? seconds : '0' + seconds),
       );
     }
-    setTime(total);
+    setTime(total === 0);
   };
 
   const clearTimer = (e) => {
@@ -56,14 +56,9 @@ const TimerCustom = ({ millySec, setTime }) => {
     clearTimer(getDeadTime());
   }, []);
 
-  //   const onClickReset = () => {
-  //     clearTimer(getDeadTime());
-  //   };
-
   return (
     <div className='App'>
       <h2>{timer}</h2>
-      {/* <button onClick={onClickReset}>Reset</button> */}
     </div>
   );
 };

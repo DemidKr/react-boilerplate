@@ -32,7 +32,6 @@ const taskTime = 15000;
 
 const TaskPage = () => {
   const [message, setMessage] = useState('');
-  const [value, setValue] = useState('');
   const socket = useRef();
 
   const [isConnected, setIsConnected] = useState(false);
@@ -46,7 +45,7 @@ const TaskPage = () => {
   const [open, setOpen] = useState(false);
   const [gameMessage, setGameMessage] = useState('');
 
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState(false);
 
   const { isLoading, isAuth, user } = useAuth();
 
@@ -157,7 +156,15 @@ const TaskPage = () => {
     socket.current = null;
   };
 
-  const handleValidateCode = async () => {
+  const isTimeOutLose = (timeout) => {
+    if (timeout) {
+      setGameMessage(`Вы проиграли, было ${attempts} попыток!`);
+      setOpen(true);
+      return;
+    }
+  };
+
+  const handleValidateCode = async (timeout = false) => {
     let result = null;
     try {
       result = eval(code);
@@ -172,12 +179,22 @@ const TaskPage = () => {
         await handleWin();
         setMessage('Результат выполнения совпал с ответом');
       } else {
+        isTimeOutLose();
         setMessage('Результат выполнения не совпал с ответом');
       }
     } else {
+      isTimeOutLose();
       setMessage('Ошибка в коде');
     }
   };
+
+  useEffect(() => {
+    if (timer) {
+      handleValidateCode(timer);
+    }
+  }, [timer]);
+
+  console.log(timer);
 
   if (isLoading) {
     return <Loading />;
@@ -215,8 +232,6 @@ const TaskPage = () => {
     );
   }
 
-  console.log(timer);
-
   return (
     <Grid
       container
@@ -253,7 +268,7 @@ const TaskPage = () => {
           <Typography variant='body2'>
             Вводимые значения: {taskData.results[0][0]}
           </Typography>
-          <TimerCustom millySec={taskTime} setTotal={setTimer} />
+          <TimerCustom millySec={taskTime} setTime={setTimer} />
         </CardContent>
       </Card>
       <Grid
