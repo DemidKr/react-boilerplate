@@ -9,14 +9,14 @@ import Typography from '@mui/material/Typography';
 import Loading from '../../components/Loading';
 import { noData } from './tasksPage.model';
 import Header from '../../components/Header/Header';
-import {useAuth} from "../../shared/hooks/useAuth";
+import { useAuth } from '../../shared/hooks/useAuth';
 
 const TasksPage = () => {
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const {isLoading, isAuth, user} = useAuth()
+  const { isLoading, isAuth, user } = useAuth();
 
   const handleOpen = () => setOpen(true);
 
@@ -25,16 +25,17 @@ const TasksPage = () => {
   };
 
   const GetTasks = () => {
-      api.get(`/tasks`, {headers: {'Authorization': `Bearer ${user.token}`}})
-          .then((res) => setTasks(res))
-          .catch(function (error) {})
+    api
+      .get(`/tasks`, { headers: { Authorization: `Bearer ${user.token}` } })
+      .then((res) => setTasks(res))
+      .catch(function (error) {});
   };
 
-    useEffect(() => {
-        if(!isLoading) {
-            GetTasks();
-        }}, [isLoading])
-
+  useEffect(() => {
+    if (!isLoading) {
+      GetTasks();
+    }
+  }, [isLoading]);
 
   return (
     <div>
@@ -45,6 +46,7 @@ const TasksPage = () => {
           display: 'flex',
           flexWrap: 'wrap',
           gap: '20px',
+          padding: '16px 0',
         }}
       >
         {(!tasks.data || tasks.data.length === 0) && (
