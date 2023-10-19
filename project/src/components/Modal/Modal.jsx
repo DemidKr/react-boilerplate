@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -9,6 +9,8 @@ import InputCustom from '../InputCustom';
 import AnswerForm from '../AnswerForm';
 import { CreateTask } from './CreateTask';
 import api from './../../shared/service/axios/axiosClient';
+import {useAuth} from "../../shared/hooks/useAuth";
+import {CircularProgress} from "@mui/material";
 
 const style = {
   position: 'absolute',
@@ -26,6 +28,7 @@ export default function ModalCustom({ open, close, taskFoo }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [taskCase, setTaskCase] = useState([{ args: '', result: '' }]);
+  const { isAuth, user, isLoading} = useAuth()
 
   const handleClose = () => {
     close(false);
@@ -39,7 +42,6 @@ export default function ModalCustom({ open, close, taskFoo }) {
     const results = taskCase.map((el) => {
       return Object.values(el);
     });
-    // CreateTask(description, title, results);
     api
       .post(
         '/tasks',
@@ -48,18 +50,17 @@ export default function ModalCustom({ open, close, taskFoo }) {
           title,
           results,
         },
-        {
-          headers: {
-            Authorization:
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZTIyZjU1ZS0zZjFiLTQ0YzctODdkNi1hYjE0OGQ5ODM0MmYiLCJ1c2VybmFtZSI6InRlYW0wIiwiaWF0IjoxNjk3NjIxNTg3LCJleHAiOjE2OTc3MDc5ODd9.fofkVpMGEm0awjsOLTam7gDOx0BJS1nfi4iBvkD-3sg',
-          },
-        },
+          {headers: {'Authorization': `Bearer ${user.token}`}}
       )
       .then(() => {
         handleClose();
         taskFoo();
       });
   };
+
+  if (isLoading) {
+    return <CircularProgress />
+  }
 
   return (
     <div>
