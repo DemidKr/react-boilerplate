@@ -8,6 +8,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
+import {useNavigate, useParams} from "react-router-dom";
 
 const style = {
     position: 'absolute',
@@ -22,10 +23,12 @@ const style = {
 };
 
 const TaskPage = () => {
-    const [message, setMessage] = useState('');
-    const [value, setValue] = useState('');
+    const { id } = useParams()
+
     const socket = useRef()
-    
+    const {isLoading, isAuth, user} = useAuth()
+    const navigate = useNavigate();
+
     const [isConnected, setIsConnected] = useState(false);
     const [isOpponent, setIsOpponent] = useState(false)
     const [code, setCode] = useState('')
@@ -35,15 +38,12 @@ const TaskPage = () => {
     const [attempts, setAttempts] = useState(0)
     const [opponentAttempts, setOpponentAttempts] = useState(0)
     const [open, setOpen] = useState(false)
+    const [message, setMessage] = useState('');
     const [gameMessage, setGameMessage] = useState('')
-    
-    const {isLoading, isAuth, user} = useAuth()
 
     useEffect(() => {
         if(!isLoading) {
-            //ToDo: get uuid from url param
-            //temporary hardcoded
-            api.get(`/tasks/9edcde33-9ac8-442c-a021-3e8582070561`, {headers: {'Authorization': `Bearer ${user.token}`}}).then((res) => {
+            api.get('/tasks/' + id, {headers: {'Authorization': `Bearer ${user.token}`}}).then((res) => {
                 console.log('res', res)
                 setTaskData(res.data)
                 setRightResult(res.data.results[0][1])
@@ -62,46 +62,34 @@ const TaskPage = () => {
             const message = JSON.parse(event.data)
             switch(message.event) {
                 case 'connect':
-                    console.log('connect', message)
                     break
                 case 'pair':
-                    console.log('pair', message)
                     setIsOpponent(true)
                     break
                 case 'ready':
-                    console.log('ready', message)
                     break
                 case 'pull':
-                    console.log('pull', message)
                     setOpponentCode(message.data)
                     break
                 case 'attempt':
-                    console.log('attempt', message)
                     setOpponentAttempts(attempts + 1)
                     break
                 case 'lose':
-                    console.log('lose', message)
                     setGameMessage(`Вы проиграли, было ${attempts} попыток!`)
                     setOpen(true)
                     break
                 case 'disconnect':
-                    console.log('disconnect', message)
                     setIsConnected(false)
                     setIsOpponent(false)
                     socket.current.close()
                     socket.current = null
                     break
                 default:
-                    console.log('shift message', message)
                     break
             }
         }
-        socket.current.onclose = () => {
-            console.log('Socket закрыт')
-        }
-        socket.current.onerror = () => {
-            console.log('Socket произошла ошибка')
-        }
+        socket.current.onclose = () => {}
+        socket.current.onerror = () => {}
     }
 
     const sendCode = (evn) => {
@@ -139,18 +127,15 @@ const TaskPage = () => {
         setIsOpponent(false)
         socket.current.close()
         socket.current = null
+        navigate('/tasks')
     }
 
     const handleValidateCode = async () => {
         let result = null
         try {
             result = eval(code)
-        } catch (e) {
-            console.log('error', e)
-        }
+        } catch (e) {}
         handleAttempt()
-        console.log('result', result)
-        console.log('taskData.result[0][1]', rightResult)
         if (result && result !== code) {
             if (result.toString() === rightResult) {
                 await handleWin()
@@ -288,7 +273,7 @@ const TaskPage = () => {
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         {gameMessage}
                     </Typography>
-                    <Button variant="contained"  sx={{mt: '10px'}}>
+                    <Button variant="contained" onClick={() => navigate('/tasks')} sx={{mt: '10px'}}>
                          Вернуться к списку
                     </Button>
                 </Box>

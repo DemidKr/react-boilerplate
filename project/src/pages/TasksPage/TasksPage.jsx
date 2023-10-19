@@ -9,41 +9,36 @@ import Typography from '@mui/material/Typography';
 import Loading from '../../components/Loading';
 import { noData } from './tasksPage.model';
 import Header from '../../components/Header/Header';
+import {useAuth} from "../../shared/hooks/useAuth";
 
 const TasksPage = () => {
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const {isLoading, isAuth, user} = useAuth()
 
   const handleOpen = () => setOpen(true);
 
   const handleClick = (id) => {
-    navigate(id);
+    navigate('/tasks/' + id);
   };
 
   const GetTasks = () => {
-    api
-      .get('/tasks', {
-        headers: {
-          Authorization:
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZTIyZjU1ZS0zZjFiLTQ0YzctODdkNi1hYjE0OGQ5ODM0MmYiLCJ1c2VybmFtZSI6InRlYW0wIiwiaWF0IjoxNjk3NjIxNTg3LCJleHAiOjE2OTc3MDc5ODd9.fofkVpMGEm0awjsOLTam7gDOx0BJS1nfi4iBvkD-3sg',
-        },
-      })
-      .then((res) => setTasks(res))
-      .finally(() => setLoading(false));
+      api.get(`/tasks`, {headers: {'Authorization': `Bearer ${user.token}`}})
+          .then((res) => setTasks(res))
+          .catch(function (error) {})
   };
 
-  useEffect(() => {
-    setLoading(true);
-    GetTasks();
-  }, []);
+    useEffect(() => {
+        if(!isLoading) {
+            GetTasks();
+        }}, [isLoading])
 
-  console.log(tasks.data);
 
   return (
     <div>
-      {loading && <Loading />}
+      {isLoading && <Loading />}
       <Header onClick={handleOpen} />
       <div
         style={{
