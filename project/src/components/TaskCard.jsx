@@ -11,15 +11,23 @@ export default function TaskCard({
   onClick,
 }) {
   return (
-    <Card onClick={onClick} sx={{ width: 250 }}>
+    <Card
+      style={{
+        justifyContent: 'space-between',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      onClick={onClick}
+      sx={{ width: 250 }}
+    >
       <CardContent>
         <Typography variant='h5' component='div'>
           {title}
         </Typography>
         <Typography variant='body2'>{description}</Typography>
       </CardContent>
-      <CardActions>
-        <Button size='small'>Learn More</Button>
+      <CardActions style={{ justifyContent: 'flex-end' }}>
+        <Button size='small'>Пройти тест</Button>
       </CardActions>
     </Card>
   );
