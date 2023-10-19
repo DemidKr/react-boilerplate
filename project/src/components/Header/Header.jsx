@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import LogoutButton from './../LogoutButton';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import {Avatar, Typography} from '@mui/material';
 import { styled } from '@mui/material';
 import api from '../../shared/service/axios/axiosClient';
 import User from './assets/user.png';
+import {useAuth} from "../../shared/hooks/useAuth";
 
 const Team = styled('div')(({ theme }) => ({
   ...theme.typography.button,
@@ -16,31 +17,28 @@ const Team = styled('div')(({ theme }) => ({
 const Header = ({ onClick }) => {
   const { pathname } = useLocation();
   const tasksLoc = pathname === '/tasks';
+  const [loading, setLoading] = useState(true);
+  const [isValid, setIsValid] = useState(null);
 
-  const [user, setUser] = useState();
+  const { isAuth, user} = useAuth()
 
   useEffect(() => {
-    api
-      .get('/auth/user', {
-        headers: {
-          Authorization:
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZTIyZjU1ZS0zZjFiLTQ0YzctODdkNi1hYjE0OGQ5ODM0MmYiLCJ1c2VybmFtZSI6InRlYW0wIiwiaWF0IjoxNjk3NjIxNTg3LCJleHAiOjE2OTc3MDc5ODd9.fofkVpMGEm0awjsOLTam7gDOx0BJS1nfi4iBvkD-3sg',
-        },
-      })
-      .then((res) => setUser(res.data));
+    fetch(user?.avatar).then(res => {
+      setIsValid(res.status === 200);
+      setLoading(false);
+    });
   }, []);
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', padding: 8 }}>
-      {tasksLoc && <Button onClick={onClick}>Создать тест</Button>}
-      {user && (
+      {tasksLoc && <Button variant="contained" onClick={onClick}>Создать тест</Button>}
+      {isAuth && !loading && (
         <>
           <Team style={{ marginLeft: 'auto' }}>{user.username}</Team>
-          <img
-            style={{ width: 20, height: 22, marginRight: 21 }}
-            src={User}
-            alt='logo'
-          />
+          {isValid
+              ? <Avatar src={user?.avatar} sx={{mr: '10px', ml: '10px'}}/>
+              : <Avatar sx={{mr: '10px', ml: '10px'}}>{user.username.charAt(0).toUpperCase()}</Avatar>
+          }
         </>
       )}
       <LogoutButton />
