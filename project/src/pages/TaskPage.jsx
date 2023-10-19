@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from '../shared/service/axios/axiosClient';
 import Loading from '../components/Loading';
 import { useAuth } from '../shared/hooks/useAuth';
@@ -15,8 +15,7 @@ import CardContent from '@mui/material/CardContent';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import TimerCustom from '../components/TimerCustom';
-import {useNavigate, useParams} from "react-router-dom";
-
+import { useNavigate, useParams } from 'react-router-dom';
 
 const style = {
   position: 'absolute',
@@ -33,76 +32,81 @@ const style = {
 const taskTime = 15000;
 
 const TaskPage = () => {
+  const { id } = useParams();
 
-    const { id } = useParams()
+  const socket = useRef();
+  const { isLoading, user } = useAuth();
+  const navigate = useNavigate();
 
-    const socket = useRef()
-    const {isLoading, isAuth, user} = useAuth()
-    const navigate = useNavigate();
+  const [isConnected, setIsConnected] = useState(false);
+  const [isOpponent, setIsOpponent] = useState(false);
+  const [code, setCode] = useState('');
+  const [opponentCode, setOpponentCode] = useState('');
+  const [taskData, setTaskData] = useState({});
+  const [rightResult, setRightResult] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [opponentAttempts, setOpponentAttempts] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [gameMessage, setGameMessage] = useState('');
+  const [timer, setTimer] = useState(false);
 
-    const [isConnected, setIsConnected] = useState(false);
-    const [isOpponent, setIsOpponent] = useState(false)
-    const [code, setCode] = useState('')
-    const [opponentCode, setOpponentCode] = useState('')
-    const [taskData, setTaskData] = useState({})
-    const [rightResult, setRightResult] = useState(null)
-    const [attempts, setAttempts] = useState(0)
-    const [opponentAttempts, setOpponentAttempts] = useState(0)
-    const [open, setOpen] = useState(false)
-    const [message, setMessage] = useState('');
-    const [gameMessage, setGameMessage] = useState('')
-    const [timer, setTimer] = useState(false);
+  useEffect(() => {
+    if (!isLoading) {
+      api
+        .get('/tasks/' + id, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+        .then((res) => {
+          console.log('res', res);
+          setTaskData(res.data);
+          setRightResult(res.data.results[0][1]);
+        })
+        .catch(function (error) {});
+    }
+  }, [isLoading]);
 
-    useEffect(() => {
-        if(!isLoading) {
-            api.get('/tasks/' + id, {headers: {'Authorization': `Bearer ${user.token}`}}).then((res) => {
-                console.log('res', res)
-                setTaskData(res.data)
-                setRightResult(res.data.results[0][1])
-            }).catch(function (error) {})
-    }}, [isLoading])
-  
   function connect() {
     socket.current = new WebSocket('ws://134.0.116.26:4442');
 
-        socket.current.onopen = () => {
-            setIsConnected(true)
-            const message = {event: 'ready'}
-            socket.current.send(JSON.stringify(message))
-        }
-        socket.current.onmessage = (event) => {
-            const message = JSON.parse(event.data)
-            switch(message.event) {
-                case 'connect':
-                    break
-                case 'pair':
-                    setIsOpponent(true)
-                    break
-                case 'ready':
-                    break
-                case 'pull':
-                    setOpponentCode(message.data)
-                    break
-                case 'attempt':
-                    setOpponentAttempts((opponentAttempts) =>  opponentAttempts + 1)
-                    break
-                case 'lose':
-                    setGameMessage(`Вы проиграли, было ${attempts} попыток!`)
-                    setOpen(true)
-                    break
-                case 'disconnect':
-                    setIsConnected(false)
-                    setIsOpponent(false)
-                    socket.current.close()
-                    socket.current = null
-                    break
-                default:
-                    break
-            }
-        }
-        socket.current.onclose = () => {}
-        socket.current.onerror = () => {}
-    }
+    socket.current.onopen = () => {
+      setIsConnected(true);
+      const message = { event: 'ready' };
+      socket.current.send(JSON.stringify(message));
+    };
+    socket.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      switch (message.event) {
+        case 'connect':
+          break;
+        case 'pair':
+          setIsOpponent(true);
+          break;
+        case 'ready':
+          break;
+        case 'pull':
+          setOpponentCode(message.data);
+          break;
+        case 'attempt':
+          setOpponentAttempts((opponentAttempts) => opponentAttempts + 1);
+          break;
+        case 'lose':
+          setGameMessage(`Вы проиграли, было ${attempts} попыток!`);
+          setOpen(true);
+          break;
+        case 'disconnect':
+          setIsConnected(false);
+          setIsOpponent(false);
+          socket.current.close();
+          socket.current = null;
+          break;
+        default:
+          break;
+      }
+    };
+    socket.current.onclose = () => {};
+    socket.current.onerror = () => {};
+  }
 
   const sendCode = (evn) => {
     setCode(evn.target.value);
@@ -118,60 +122,64 @@ const TaskPage = () => {
     socket.current.send(JSON.stringify(message));
     setAttempts(attempts + 1);
   };
-  
+
   const handleWin = async () => {
     const message = { event: 'win' };
     socket.current.send(JSON.stringify(message));
     setGameMessage(`Вы победили с ${attempts} попытки!`);
     setOpen(true);
   };
-  
+
   const handleDecline = async () => {
     const message = { event: 'decline' };
     socket.current.send(JSON.stringify(message));
   };
-  
-   const handleDisconnect = async () => {
-        const message = { event: 'decline' }
-        socket.current.send(JSON.stringify(message));
-        setIsConnected(false)
-        setIsOpponent(false)
-        socket.current.close()
-        socket.current = null
-        navigate('/tasks')
-    }
-   
-   const handleValidateCode = async (timeout = false) => {
+
+  const handleDisconnect = async () => {
+    const message = { event: 'decline' };
+    socket.current.send(JSON.stringify(message));
+    setIsConnected(false);
+    setIsOpponent(false);
+    socket.current.close();
+    socket.current = null;
+    navigate('/tasks');
+  };
+
+  const isTimeOutLose = () => {
+    setGameMessage(`Вы проиграли, было ${attempts} попыток!`);
+    setOpen(true);
+  };
+
+  const handleValidateCode = async (timeout = false) => {
     let result = null;
+
     try {
       result = eval(code);
     } catch (e) {}
+
     handleAttempt();
+
     if (result && result !== code) {
       if (result.toString() === rightResult) {
         await handleWin();
         setMessage('Результат выполнения совпал с ответом');
       } else {
-        isTimeOutLose();
+        if (timeout) {
+          isTimeOutLose();
+          return;
+        }
         setMessage('Результат выполнения не совпал с ответом');
       }
     } else {
-      isTimeOutLose();
+      if (timeout) {
+        isTimeOutLose();
+        return;
+      }
       setMessage('Ошибка в коде');
     }
   };
 
-  const isTimeOutLose = (timeout) => {
-    if (timeout) {
-      setGameMessage(`Вы проиграли, было ${attempts} попыток!`);
-      setOpen(true);
-      return;
-    }
-  };
-
-  
-
- useEffect(() => {
+  useEffect(() => {
     if (timer) {
       handleValidateCode(timer);
     }
@@ -203,9 +211,13 @@ const TaskPage = () => {
         >
           Присоединиться
         </Button>
-        <Button variant="contained" size="large" onClick={() => navigate('/tasks')}>
-           Выйти
-         </Button>
+        <Button
+          variant='contained'
+          size='large'
+          onClick={() => navigate('/tasks')}
+        >
+          Выйти
+        </Button>
         {isConnected && <CircularProgress />}
         {isConnected && (
           <Typography component='div' variant='h6'>
@@ -277,7 +289,7 @@ const TaskPage = () => {
           />
           <Button
             variant='contained'
-            onClick={handleValidateCode}
+            onClick={() => handleValidateCode()}
             sx={{ mt: '10px' }}
           >
             Проверить код
@@ -294,7 +306,7 @@ const TaskPage = () => {
                 mt: '10px',
               }}
             >
-               {message}
+              {message}
             </Alert>
           )}
         </Grid>
@@ -330,7 +342,11 @@ const TaskPage = () => {
           <Typography id='modal-modal-title' variant='h6' component='h2'>
             {gameMessage}
           </Typography>
-          <Button variant='contained' sx={{ mt: '10px' }}>
+          <Button
+            onClick={() => navigate('/tasks')}
+            variant='contained'
+            sx={{ mt: '10px' }}
+          >
             Вернуться к списку
           </Button>
         </Box>
