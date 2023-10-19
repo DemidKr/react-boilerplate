@@ -9,6 +9,7 @@ export default function InputCustom({
   name,
   required,
   style,
+  textarea,
 }) {
   const handleChange = (e) => {
     onChange(e.target.value);
@@ -31,6 +32,8 @@ export default function InputCustom({
         variant='outlined'
         name={name}
         required={required}
+        multiline={textarea}
+        rows={5}
       />
     </Box>
   );

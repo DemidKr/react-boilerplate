@@ -102,6 +102,7 @@ export default function ModalCustom({ open, close, taskFoo }) {
                 label='Описание'
                 value={description}
                 onChange={setDescription}
+                textarea
               />
               <AnswerForm taskCase={taskCase} setTaskCase={setTaskCase} />
               <Button type='submit' variant='contained'>
