@@ -90,16 +90,19 @@ export default function ModalCustom({ open, close, taskFoo }) {
                 Создайте тест
               </Typography>
               <InputCustom
+                style={{ width: '96%' }}
                 required
                 label='Название'
                 value={title}
                 onChange={setTitle}
               />
               <InputCustom
+                style={{ width: '96%' }}
                 required
                 label='Описание'
                 value={description}
                 onChange={setDescription}
+                textarea
               />
               <AnswerForm taskCase={taskCase} setTaskCase={setTaskCase} />
               <Button type='submit' variant='contained'>

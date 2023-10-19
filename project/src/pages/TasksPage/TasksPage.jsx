@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ModalCustom from '../components/Modal/Modal';
+import ModalCustom from '../../components/Modal/Modal';
 import Button from '@mui/material/Button';
-import TaskCard from '../components/TaskCard';
-import LogoutButton from '../components/LogoutButton';
-import api from '../shared/service/axios/axiosClient';
-import Loading from '../components/Loading';
+import TaskCard from '../../components/TaskCard';
+import api from '../../shared/service/axios/axiosClient';
+import Typography from '@mui/material/Typography';
+
+import Loading from '../../components/Loading';
+import { noData } from './tasksPage.model';
+import Header from '../../components/Header/Header';
 
 const TasksPage = () => {
   const [open, setOpen] = useState(false);
@@ -40,30 +43,31 @@ const TasksPage = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Button onClick={handleOpen}>Open modal</Button>
-        <LogoutButton />
-      </div>
+      {loading && <Loading />}
+      <Header onClick={handleOpen} />
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           gap: '20px',
         }}
-        className=''
       >
-        {loading && <Loading />}
-        {tasks?.data?.length === 0 && 'НЕТ ДАННЫХ!'}
-        {tasks?.data?.map((el) => {
-          return (
-            <TaskCard
-              onClick={() => handleClick(el.uuid)}
-              key={el._id}
-              title={el.title}
-              description={el.description}
-            />
-          );
-        })}
+        {(!tasks.data || tasks.data.length === 0) && (
+          <Typography variant='h5' component='div'>
+            {noData}
+          </Typography>
+        )}
+        {tasks.data &&
+          tasks.data.map((el) => {
+            return (
+              <TaskCard
+                onClick={() => handleClick(el.uuid)}
+                key={el._id}
+                title={el.title}
+                description={el.description}
+              />
+            );
+          })}
       </div>
       <ModalCustom taskFoo={GetTasks} open={open} close={setOpen} />
     </div>

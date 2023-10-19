@@ -1,4 +1,5 @@
 import InputCustom from './InputCustom';
+import Button from '@mui/material/Button';
 
 const AnswerForm = ({ taskCase, setTaskCase }) => {
   const handleAddCase = () => {
@@ -35,13 +36,14 @@ const AnswerForm = ({ taskCase, setTaskCase }) => {
           />
         </div>
       ))}
-      <button
+      <Button
         style={{ display: 'block', margin: '24px auto ' }}
         type='button'
+        variant='outlined'
         onClick={handleAddCase}
       >
         Add
-      </button>
+      </Button>
     </>
   );
 };

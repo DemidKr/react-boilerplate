@@ -8,6 +8,8 @@ export default function InputCustom({
   isCase,
   name,
   required,
+  style,
+  textarea,
 }) {
   const handleChange = (e) => {
     onChange(e.target.value);
@@ -22,6 +24,7 @@ export default function InputCustom({
       autoComplete='off'
     >
       <TextField
+        style={style}
         value={value}
         onChange={isCase ? onChange : handleChange}
         id='outlined-basic'
@@ -29,6 +32,8 @@ export default function InputCustom({
         variant='outlined'
         name={name}
         required={required}
+        multiline={textarea}
+        rows={5}
       />
     </Box>
   );
