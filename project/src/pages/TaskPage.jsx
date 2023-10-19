@@ -72,7 +72,7 @@ const TaskPage = () => {
                     setOpponentCode(message.data)
                     break
                 case 'attempt':
-                    setOpponentAttempts(attempts + 1)
+                    setOpponentAttempts((opponentAttempts) =>  opponentAttempts + 1)
                     break
                 case 'lose':
                     setGameMessage(`Вы проиграли, было ${attempts} попыток!`)
@@ -170,8 +170,11 @@ const TaskPage = () => {
                 }}
             >
 
-                <Button variant="contained" size="large" onClick={connect} disabled={isConnected}>
+                <Button variant="contained" size="large" sx={{mb: '10px'}} onClick={connect} disabled={isConnected}>
                     Присоединиться
+                </Button>
+                <Button variant="contained" size="large" onClick={() => navigate('/tasks')}>
+                    Выйти
                 </Button>
                 {isConnected && <CircularProgress />}
                 {isConnected && <Typography component="div" variant="h6">Ждем подключение второго пользователя</Typography>}

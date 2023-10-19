@@ -20,5 +20,5 @@ export const userRoutes = [
         path: '/tasks/:id',
         element: <TaskPage />,
     },
-    { path: '*', element: <Navigate to='/tasks/1' replace /> },
+    { path: '*', element: <Navigate to='/tasks' replace /> },
 ]
